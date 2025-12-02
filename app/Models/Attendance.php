@@ -8,19 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
-    // -----------  Custom Constants  --------------
-    // public const ATTENDANCE_STATUS = [
-    //     'present',
-    //     'absent',
-    //     'late',
-    //     'half_day',
-    //     'remote_work',
-    // ];
-
-    // public const ATTENDANCE_STATUS_DEFAULT = 'present';
-
-
-    // ------------------ built-in Model Fields ------------------
     protected $fillable = [
         'date',
         'check_in',

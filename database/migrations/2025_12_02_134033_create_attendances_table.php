@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('date'); 
             $table->time('check_in')->nullable(); 
             $table->time('check_out')->nullable(); 
-            $table->enum('status', Attendance::ATTENDANCE_STATUS)->default(Attendance::ATTENDANCE_STATUS_DEFAULT); 
+            $table->enum('status',['present', 'absent', 'late', 'half_day', 'remote_work'])->default('present'); 
             $table->text('notes')->nullable(); 
             $table->timestamps();
 
