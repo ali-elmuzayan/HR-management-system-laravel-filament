@@ -1,0 +1,50 @@
+name: Deploy to Production
+
+on:
+  pull_request:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy files via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "."
+          target: "/var/www/hrms"
+
+      - name: Execute remote commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/hrms
+
+            # Stop existing containers
+            docker compose down
+
+            # Build and start containers
+            # This builds the images on the server using the new code
+            docker compose up --build -d
+
+            # Run migrations inside the app container
+            docker compose exec -T app php artisan migrate --force
+
+            # Clear caches inside the container
+            docker compose exec -T app php artisan optimize:clear
+            docker compose exec -T app php artisan config:cache
+            docker compose exec -T app php artisan route:cache
+            docker compose exec -T app php artisan view:cache
+
+            # Link storage (if not already done)
+            docker compose exec -T app php artisan storage:link
